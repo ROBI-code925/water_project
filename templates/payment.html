@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safi Water Billing Payment</title>
+  <script src="https://js.stripe.com/v3"></script>
+  <style>
+  /* Modern styling for the form and card element */
+  body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(to right, #4a90e2, #4caf50);
+    margin: 0;
+    color: white;
+  }
+
+  h1, h2 {
+    text-align: center;
+    font-weight: 600;
+  }
+
+  form {
+    max-width: 400px;
+    width: 100%;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    transition: border 0.3s ease;
+  }
+
+  input:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+
+  #card-element {
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    transition: border 0.3s ease;
+  }
+
+  button {
+    background: #4a90e2;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  button:hover {
+    background: #357abD;
+    transform: scale(1.05);
+  }
+
+  #payment-message {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px 0;
+    text-align: center;
+    z-index: 1000;
+  }
+
+  .header a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+
+  .header a:hover {
+    color: #ffcc00;
+  }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <a href="{{ url_for('blog') }}">Blog</a>
+    <a href="{{ url_for('register') }}">Register</a>
+    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
+  <h1>Safi Water Billing - Make a Payment</h1>
+  <h2>Approve Payments</h2>
+
+  <form id="payment-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Enter your username" required>
+
+    <label for="amount">Amount (USD):</label>
+    <input type="number" id="amount" placeholder="Enter amount" required>
+
+    <div id="card-element"></div>
+
+    <button type="submit">Pay with Card</button>
+    
+  </form>
+  <button onclick="goToDashboard()" style="margin-top: 20px; background:rgb(124, 214, 180); color: white; padding: 10px 20px; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">
+    Back to Dashboard
+  </button>
+
+  <div id="payment-message"></div>
+
+  <script>
+    // Replace with your actual Stripe publishable key
+    document.addEventListener("DOMContentLoaded", async () => {
+    const stripe = Stripe("pk_test_51R1netCK0Y9VqYX7oS0x2uuADZQrrAjfm25xrRdGSrxFMYGlFO8pQ5wRjCMVD8QLMBNaiNHmIst1oIqWVSp48Fmj00dSt2IMHU");
+    const elements = stripe.elements();
+
+    // ✅ Create Card Element
+    const cardElement = elements.create("card");
+    cardElement.mount("#card-element");  // Attach input field
+
+    document.getElementById("payment-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const amountInput = document.getElementById("amount").value;
+        const username = "test_user";  // Replace with the actual logged-in username
+
+        const amount = parseFloat(amountInput);
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById("payment-message").textContent = "Invalid amount.";
+            return;
+        }
+
+        try {
+            // ✅ 1. Request PaymentIntent from the backend
+            const response = await fetch("/create-payment-intent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount, username })
+            });
+
+            const data = await response.json();
+            if (!data.clientSecret) throw new Error("No client secret returned");
+
+            // ✅ 2. Collect Card Details and Confirm Payment
+            const { paymentIntent, error } = await stripe.confirmCardPayment(data.clientSecret, {
+                payment_method: { card: cardElement }
+            });
+
+            if (error) {
+                document.getElementById("payment-message").textContent = "Payment failed: " + error.message;
+            } else {
+                document.getElementById("payment-message").textContent = "Payment successful!";
+                
+                // ✅ 3. Update MongoDB Payment Status
+                await fetch("/update-payment-status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ payment_intent_id: paymentIntent.id, status: "succeeded" })
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById("payment-message").textContent = "Payment error. Please try again.";
+        }
+    });
+});
+function generateAndFetchBilling() {
+  const customerId = document.getElementById("customerId").value;
+
+  if (!customerId) {
+      alert("Please enter a Customer ID.");
+      return;
+  }
+
+  // First, generate or update billing info
+  fetch("/api/generate_bills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId })
+  })
+  .then(response => response.json())
+  .then(() => fetchBillingTable()) // Fetch updated billing table
+  .catch(error => console.error("Error:", error));
+}
+
+function fetchBillingTable() {
+  fetch("/api/fetch_bills")
+  .then(response => response.json())
+  .then(data => {
+      let tableBody = document.getElementById("billingTableBody");
+      tableBody.innerHTML = ""; // Clear previous data
+
+      data.forEach(bill => {
+          let row = `
+              <tr>
+                  <td>${bill.customer_id}</td>
+                  <td>${bill.total_consumption} m³</td>
+                  <td>$${bill.total_amount}</td>
+                  <td>$${bill.amount_paid}</td>
+                  <td>$${bill.balance}</td>
+                  <td>${bill.billing_month}</td>
+                  <td>${new Date(bill.due_date).toLocaleDateString()}</td>
+              </tr>
+          `;
+          tableBody.innerHTML += row;
+      });
+  })
+  .catch(error => console.error("Error fetching billing table:", error));
+}
+
+// Fetch existing billing data on page load
+fetchBillingTable();
+
+
+function generateAndFetchBilling() {
+  const customerId = document.getElementById("customerId").value;
+
+  if (!customerId) {
+      alert("Please enter a Customer ID.");
+      return;
+  }
+
+  // First, generate or update billing info
+  fetch("/api/generate_bills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId })
+  })
+  .then(response => response.json())
+  .then(() => fetchBillingTable()) // Fetch updated billing table
+  .catch(error => console.error("Error:", error));
+}
+
+function fetchBillingTable() {
+  fetch("/api/fetch_bills")
+  .then(response => response.json())
+  .then(data => {
+      let tableBody = document.getElementById("billingTableBody");
+      tableBody.innerHTML = ""; // Clear previous data
+
+      data.forEach(bill => {
+          let row = `
+              <tr>
+                  <td>${bill.customer_id}</td>
+                  <td>${bill.total_consumption} m³</td>
+                  <td>$${bill.total_amount}</td>
+                  <td>$${bill.amount_paid}</td>
+                  <td>$${bill.balance}</td>
+                  <td>${bill.billing_month}</td>
+                  <td>${new Date(bill.due_date).toLocaleDateString()}</td>
+              </tr>
+          `;
+          tableBody.innerHTML += row;
+      });
+  })
+  .catch(error => console.error("Error fetching billing table:", error));
+}
+
+// Fetch existing billing data on page load
+fetchBillingTable();
+
+
+    function generateAndFetchBilling() {
+  const customerId = document.getElementById("customerId").value;
+
+  if (!customerId) {
+      alert("Please enter a Customer ID.");
+      return;
+  }
+
+  // First, generate or update billing info
+  fetch("/api/generate_bills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId })
+  })
+  .then(response => response.json())
+  .then(() => fetchBillingTable()) // Fetch updated billing table
+  .catch(error => console.error("Error:", error));
+}
+
+function fetchBillingTable() {
+  fetch("/api/fetch_bills")
+  .then(response => response.json())
+  .then(data => {
+      let tableBody = document.getElementById("billingTableBody");
+      tableBody.innerHTML = ""; // Clear previous data
+
+      data.forEach(bill => {
+          let row = `
+              <tr>
+                  <td>${bill.customer_id}</td>
+                  <td>${bill.total_consumption} m³</td>
+                  <td>$${bill.total_amount}</td>
+                  <td>$${bill.amount_paid}</td>
+                  <td>$${bill.balance}</td>
+                  <td>${bill.billing_month}</td>
+                  <td>${new Date(bill.due_date).toLocaleDateString()}</td>
+              </tr>
+          `;
+          tableBody.innerHTML += row;
+      });
+  })
+  .catch(error => console.error("Error fetching billing table:", error));
+}
+
+// Fetch existing billing data on page load
+fetchBillingTable();
+
+
+ 
+
+  function goToDashboard() {
+    window.location.href = "/customer_dashboard"; // Update this URL if your dashboard has a different route
+  }
+
+
+</script>
+</body>
+</html>

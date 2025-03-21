@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Safi Water Billing System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url("/static/water.jpg"); /* Check file path relative to your CSS or HTML file */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            text-align: center;
+            padding: 50px;
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+           
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
+            width: 350px;
+            text-align: center;
+        }
+        .container h2{
+color:black;
+        }
+        .container a{
+            color: red;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            color: white;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), 
+                        -4px -4px 8px rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Hover Effect */
+        .btn:hover {
+            background: linear-gradient(45deg, #0056b3, #00a2d4);
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.3), 
+                        -6px -6px 12px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Active (Click) Effect */
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .btn {
+            background-color: #ffcc00;
+            color: black;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ffaa00;
+        }
+        .register-link {
+            display: block;
+            margin-top: 15px;
+            color: white;
+            text-decoration: none;
+        }
+        .register-link:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .header a:hover {
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="header">
+        <a href="{{ url_for('blog') }}">Blog</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <div class="container">
+        <h2>Login</h2>
+        <form action="{{ url_for('login') }}" method="POST" enctype="application/x-www-form-urlencoded">
+
+            
+            <input type="text" name="username" placeholder="Enter Username" required>
+            <input type="password" name="password" placeholder="Enter Password" required>
+            <button type="submit" class="btn">Login</button>
+
+        </form>
+        
+        <p id="errorMessage" class="error"></p>
+        <a href="/register" class="register">Don't have an account? Register here</a>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            fetch("/login", {
+                method: "POST",
+                body: JSON.stringify({ username, password }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;  // Redirect to dashboard
+                } else {
+                    alert(data.message);  // Show error message
+                }
+            });
+            
+        });
+    </script>
+
+</body>
+</html>

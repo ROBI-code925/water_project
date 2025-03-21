@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safi Water Billing System - About</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .btn-modern {
+            background: #ff9800;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-modern:hover {
+            background: #e65100;
+            transform: scale(1.05);
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Safi Water Billing System</div>
+    <div class="container">
+        <div class="card">
+            <h2>About Safi Water Billing System</h2>
+            <p>The Safi Water Billing System is designed to provide a seamless experience for customers to manage their water usage, track billing, and make payments efficiently.</p>
+        </div>
+        <div class="card">
+            <h2>Features</h2>
+            <ul>
+                <li><strong>Billing Management:</strong> View and track monthly water bills.</li>
+                <li><strong>Payment Processing:</strong> Secure online payments.</li>
+                <li><strong>Water Consumption Tracking:</strong> Monitor daily and monthly water usage.</li>
+                <li><strong>Feedback & Support:</strong> Submit complaints and queries.</li>
+                <li><strong>Report Issues:</strong> Easily report water-related problems.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h2>User Management</h2>
+            <p>The system ensures that customers, administrators, and support staff have access to the functionalities that suit their roles:</p>
+            <ul>
+                <li><strong>Customers:</strong> Can log in, check bills, pay online, track usage, and report issues.</li>
+                <li><strong>Administrators:</strong> Manage customer accounts, update billing records, and analyze usage trends.</li>
+                <li><strong>Support Team:</strong> Handle customer complaints and feedback effectively.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h2>Security Measures</h2>
+            <p>The system follows strict security guidelines to ensure data protection:</p>
+            <ul>
+                <li>Encrypted database and secure payment gateway.</li>
+                <li>Role-based access control for different users.</li>
+                <li>Regular backups to prevent data loss.</li>
+                <li>Secure login with password hashing.</li>
+            </ul>
+        </div>
+        <div class="card text-center">
+            <h2>Get Started</h2>
+            <a href="{{ url_for('register') }}" class="btn-modern">Register Now</a>
+            <a href="{{ url_for('login') }}" class="btn-modern">Login</a>
+        </div>
+    </div>
+    <footer>
+        &copy; 2025 Safi Water Billing System. All rights reserved.
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

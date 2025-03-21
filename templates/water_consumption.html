@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Consumption</title>
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to right, #3a7bd5, #3a6073);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      padding: 0 15px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      color: white;
+    }
+
+    .card h2 {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .info p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .action-btns .btn {
+      padding: 15px;
+      font-size: 16px;
+      background-color: #1d976c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .action-btns .btn:hover {
+      background-color: #93f9b9;
+      transform: scale(1.05);
+    }
+
+    .flash-messages .alert {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .alert-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .alert-error {
+      background-color: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h2>Water Consumption Details</h2>
+
+      <div class="info">
+        <p><strong>Username:</strong> {{ session['user'] }}</p>
+        <p><strong>Water Consumption:</strong> {{ water_consumption }} Liters</p>
+        <p><strong>Amount Due:</strong> KSh {{ payment_amount }}</p>
+      </div>
+
+      <div class="action-btns">
+        <a href="{{ url_for('process_payment') }}" class="btn">Make Payment</a>
+      </div>
+
+      <!-- Flash Messages -->
+      <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+    
+  </div>
+
+</body>
+</html>

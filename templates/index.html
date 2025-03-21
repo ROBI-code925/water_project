@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safi Water Billing System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url("/static/water.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            text-align: center;
+            padding: 50px;
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .header a:hover {
+            color: #ffcc00;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: moveText 10s linear infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            color: red;
+        }
+        @keyframes moveText {
+            100% { transform: translateX(-10%); }
+            0% { transform: translateX(100%); }
+        }
+        .button-container {
+            margin-top: 30px;
+        }
+        a.btn {
+            text-decoration: none;
+            color: white;
+            background-color: #ffcc00;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        a.btn:hover {
+            background-color: #ffaa00;
+            transform: translateY(-3px);
+        }
+        p {
+            color: black;
+        }
+        span {
+            color: green;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('blog') }}">Blog</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    
+    <h1>WELCOME TO <span>SAFI WATERS</span></h1>
+    <p>Manage your water bills with ease and efficiency.</p>
+    <div class="button-container">
+        <a href="{{ url_for('login') }}" class="btn">Get Started</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Records</title>
+    
+    <style>
+        /* General Page Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #eef2f3;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Container Styling */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin-top: 40px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        /* Title */
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Table Styling */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa; /* Striped effect */
+        }
+
+        tr:hover {
+            background: #ecf0f1;
+        }
+
+        td {
+            color: #555;
+            font-size: 16px;
+        }
+
+        /* No Billing Message */
+        .no-billing {
+            text-align: center;
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        /* Button Styling */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 25px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Monthly Water Billing</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Water Used (m³)</th>
+                        <th>Bill Amount (Ksh)</th>
+                        <th>Amount Paid (Ksh)</th>
+                        <th>Balance (Ksh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in billing %}
+                    <tr>
+                        <td>{{ bill.customer_id }}</td>
+                        <td>{{ bill.water_used }}</td>
+                        <td>{{ bill.bill_amount }}</td>
+                        <td>{{ bill.amount_paid }}</td>
+                        <td>{{ bill.balance }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="no-billing">No billing records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+
+        <div class="btn-container">
+            <a class="btn" href="{{ url_for('customer_dashboard') }}">⬅ Back to Dashboard</a>
+        </div>
+    </div>
+    <script>
+    function generateAndFetchBilling() {
+        const customerId = document.getElementById("customerId").value;
+
+        if (!customerId) {
+            alert("Please enter a Customer ID.");
+            return;
+        }
+
+        // First, generate or update billing info
+        fetch("/api/generate_bills", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customer_id: customerId })
+        })
+        .then(response => response.json())
+        .then(() => fetchBillingTable()) // Fetch updated billing table
+        .catch(error => console.error("Error:", error));
+    }
+
+    function fetchBillingTable() {
+        fetch("/api/fetch_bills")
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("billingTableBody");
+            tableBody.innerHTML = ""; // Clear previous data
+
+            data.forEach(bill => {
+                let row = `
+                    <tr>
+                        <td>${bill.customer_id}</td>
+                        <td>${bill.total_consumption} m³</td>
+                        <td>$${bill.total_amount}</td>
+                        <td>$${bill.amount_paid}</td>
+                        <td>$${bill.balance}</td>
+                        <td>${bill.billing_month}</td>
+                        <td>${new Date(bill.due_date).toLocaleDateString()}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        })
+        .catch(error => console.error("Error fetching billing table:", error));
+    }
+
+    // Fetch existing billing data on page load
+    fetchBillingTable();
+</script>
+</body>
+</html>
